@@ -314,6 +314,7 @@ public class CallFeaturesSetting extends PreferenceActivity
         CommandsInterface.CF_REASON_NO_REPLY,
         CommandsInterface.CF_REASON_NOT_REACHABLE
     };
+
     private static final CharSequence FLIP_ACTION_KEY = "flip_action";
 
     private class VoiceMailProviderSettings {
@@ -627,6 +628,9 @@ public class CallFeaturesSetting extends PreferenceActivity
         } else if (preference == mButtonSipCallOptions) {
             handleSipCallOptionsChange(objValue);
         }else if (preference == mFlipAction) {
+            int i = Integer.parseInt((String) objValue);
+            Settings.System.putInt(mPhone.getContext().getContentResolver(), Settings.System.FLIP_ACTION_KEY,
+                    i);
             updateFlipActionSummary((String) objValue);
         }
         // always let the preference setting proceed.
@@ -638,8 +642,6 @@ public class CallFeaturesSetting extends PreferenceActivity
         if (mFlipAction != null) {
             String[] summaries = getResources().getStringArray(R.array.flip_action_summary_entries);
             mFlipAction.setSummary(getString(R.string.flip_action_summary, summaries[i]));
-            Settings.System.putInt(getContentResolver(), Settings.System.FLIP_ACTION_KEY,
-                    i);
         }
     }
 
@@ -1632,7 +1634,6 @@ public class CallFeaturesSetting extends PreferenceActivity
 
         if (mButtonHAC != null) {
             if (getResources().getBoolean(R.bool.hac_enabled)) {
-
                 mButtonHAC.setOnPreferenceChangeListener(this);
             } else {
                 prefSet.removePreference(mButtonHAC);
@@ -1651,9 +1652,9 @@ public class CallFeaturesSetting extends PreferenceActivity
 
         if (mFlipAction != null) {
             mFlipAction.setOnPreferenceChangeListener(this);
-            int flipAction = Settings.System.getInt(getContentResolver(),
+            int flipAction = Settings.System.getInt(mPhone.getContext().getContentResolver(),
                     Settings.System.FLIP_ACTION_KEY, 0);
-            mFlipAction.setDefaultValue(String.valueOf(flipAction));
+            mFlipAction.setValue(Integer.toString(flipAction));
         }
 
         if (!getResources().getBoolean(R.bool.world_phone)) {
@@ -1686,7 +1687,6 @@ public class CallFeaturesSetting extends PreferenceActivity
         mCallEndSound = (CheckBoxPreference) findPreference(BUTTON_CALL_END_SOUND_KEY);
         mCallEndSound.setChecked(Settings.System.getInt(getContentResolver(),
                 Settings.System.CALL_END_SOUND, 1) == 0 ? false : true);
-
 
         // create intent to bring up contact list
         mContactListIntent = new Intent(Intent.ACTION_GET_CONTENT);
@@ -1889,6 +1889,9 @@ public class CallFeaturesSetting extends PreferenceActivity
         }
 
         if (mFlipAction != null) {
+            int flipAction = Settings.System.getInt(getContentResolver(),
+                    Settings.System.FLIP_ACTION_KEY, 0);
+            mFlipAction.setValue(Integer.toString(flipAction));
             updateFlipActionSummary(mFlipAction.getValue());
         }
 
